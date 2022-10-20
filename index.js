@@ -38,7 +38,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 app.use(express.json()); //to read json files in express app
-app.use(cors());
+app.use(cors()); //fix CORS error
 app.use('/uploads', express.static('uploads')); //to get static images on request /uploads/name
 
 //user routes
@@ -54,6 +54,7 @@ app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
 
 //post routes
 app.get('/post', PostController.getAll);
+app.get('/tags', PostController.getLastTags);
 app.get('/post/:id', PostController.getOne);
 app.post('/post', checkAuth, postCreateValidator, handleValidationErrors, PostController.create);
 app.delete('/post/:id', checkAuth, PostController.remove);

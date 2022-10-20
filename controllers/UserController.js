@@ -84,7 +84,7 @@ export const getMe = async (req, res) => {
     //separating the password hash from the rest of the user information
     const { passwordHash, ...userData } = user._doc;
 
-    res.json({ userData });
+    res.json(userData);
   } catch (err) {
     res.status(403).json({ message: 'No access' });
   }
