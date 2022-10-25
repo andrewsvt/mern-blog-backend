@@ -86,8 +86,7 @@ export const update = async (req, res) => {
 
 export const getAll = async (req, res) => {
   try {
-    //get full user information (only id without it)
-    const posts = await PostModel.find().populate('user').exec();
+    const posts = await PostModel.find().sort({ createdAt: -1 }).populate('user').exec();
 
     res.json(posts);
   } catch (err) {

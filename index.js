@@ -5,6 +5,7 @@ import { loginValidator, registrationValidator, postCreateValidator } from './va
 import handleValidationErrors from './utils/handleValidationErrors.js'; //express-validator results
 import checkAuth from './utils/checkAuth.js'; //jwt token decoding
 
+import fs from 'fs';
 import multer from 'multer';
 
 import * as UserController from './controllers/UserController.js';
@@ -14,14 +15,12 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 mongoose
-  .connect(
-    `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@cluster0.jrkuezh.mongodb.net/mern-blog?retryWrites=true&w=majority`,
-  )
+  .connect(process.env.MONGODB_URI)
   .then(() => console.log('database is ok'))
   .catch((err) => console.log('database error - ', err));
 
 const app = express();
-const port = process.env.PORT;
+const port = process.env.PORT || 8000;
 
 app.get('/', (req, res) => {
   res.send('Wlcome to the MERN blog app');
@@ -29,6 +28,10 @@ app.get('/', (req, res) => {
 
 const storage = multer.diskStorage({
   destination: (_, __, callback) => {
+    if (!fs.existsSync('uploads')) {
+      fs.mkdirSync('uploads');
+    } // create uploads folder if it doesn't exist
+
     callback(null, 'uploads');
   },
   filename: (_, file, callback) => {
@@ -46,13 +49,13 @@ app.post('/auth/login', loginValidator, handleValidationErrors, UserController.l
 app.post('/auth/register', registrationValidator, handleValidationErrors, UserController.register);
 app.get('/auth/me', checkAuth, UserController.getMe);
 
+//post routes
 app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
   res.json({
     url: `/uploads/${req.file.originalname}`,
   });
 });
 
-//post routes
 app.get('/post', PostController.getAll);
 app.get('/tags', PostController.getLastTags);
 app.get('/post/:id', PostController.getOne);
